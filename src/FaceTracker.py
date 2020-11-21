@@ -50,8 +50,7 @@ class FaceTracker:
             eye2Ry = landmarks.part(45).y
             nosex = landmarks.part(30).x
             nosey = landmarks.part(30).y
-            # noseTopx = landmarks.part(29).x
-            # noseTopy = landmarks.part(29).y
+
 
             mouthBottomx = landmarks.part(66).x
             mouthBottomy = landmarks.part(66).y
@@ -71,10 +70,12 @@ class FaceTracker:
             frame = cv2.circle(frame, (leftx, lefty), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (eye1Lx, eye1Ly), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (eye2Rx, eye2Ry), 4, (255, 0, 0), -1)
+
             frame = cv2.circle(frame, (nosex, nosey), 6, (0, 0, 255), -1)
             frame = cv2.circle(frame, (faceMiddleLeftx, faceMiddleRighty), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (faceMiddleRightx, faceMiddleRighty), 4, (255, 0, 0), -1)
             # frame = cv2.circle(frame, (noseTopx, noseTopy), 4, (255, 0, 0), -1)
+
             frame = cv2.circle(frame, (mouthBottomx, mouthBottomy), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (mouthTopx, mouthTopy), 4, (255, 0, 0), -1)
 
