@@ -10,6 +10,11 @@ class FaceTracker:
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
         self.direction = 3
+        self.noseOldx = 0
+        self.noseOldy = 0
+        self.noseChangex = 0
+        self.noseChangey = 0
+
         print("Camera warming up ...")
 
     def update_frame(self):
@@ -26,6 +31,7 @@ class FaceTracker:
 
             landmarks = self.predictor(gray, face)
 
+
             rightx = landmarks.part(16).x
             righty = landmarks.part(16).y
             leftx = landmarks.part(0).x
@@ -34,6 +40,8 @@ class FaceTracker:
             eye1Ly = landmarks.part(36).y
             eye2Rx = landmarks.part(45).x
             eye2Ry = landmarks.part(45).y
+            nosex = landmarks.part(33).x
+            nosey = landmarks.part(33).y
 
             frame = cv2.circle(frame, (rightx, righty), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (leftx, lefty), 4, (255, 0, 0), -1)
@@ -41,16 +49,31 @@ class FaceTracker:
             frame = cv2.circle(frame, (leftx, lefty), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (eye1Lx, eye1Ly), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (eye2Rx, eye2Ry), 4, (255, 0, 0), -1)
+            frame = cv2.circle(frame, (nosex, nosey), 4, (255, 0, 0), -1)
+
+            # for n in range(0, 68):
+            #     x = landmarks.part(n).x
+            #     y = landmarks.part(n).y
+            #     cv2.circle(frame, (x, y), 4, (255, 0, 0), -1)
 
                         
             eyeLine1 = math.sqrt(pow((eye1Lx - leftx), 2) + pow((eye1Ly - lefty), 2))
             eyeLine2 = math.sqrt(pow((rightx - eye2Rx), 2) + pow((righty - eye2Ry), 2))
- 
+
+            # print(self.noseOldx - nosex)
+            # print(self.noseOldy - nosey)
+            # print(lefty - righty)
+            self.noseChangex = self.noseOldx - nosex
+            self.noseChangey = self.noseOldy - nosey
+
+            self.noseOldx = nosex
+            self.noseOldy = nosey
+
             if(abs(eyeLine1 - eyeLine2) < 30):
-                if lefty - righty > 60:
+                if lefty - righty > 30:
                     print("UP")
                     self.direction = 1
-                elif lefty - righty < -60:
+                elif lefty - righty < -30:
                     print("DOWN")
                     self.direction = 2
                 else:
@@ -63,18 +86,21 @@ class FaceTracker:
 
     def get_direction(self):
         return self.direction
-
+    
     def release_camera(self):
         self.cap.release()
 
+    def get_nose_direction(self):
+        return self.noseChangex, self.noseChangey
+
+
 def main():
-   
+    test = FaceTracker()
     while True:
-        test = FaceTracker()
         frame = test.update_frame()
         frame2 = cv2.resize(frame, (0, 0), fx = 0.75, fy = 0.75)
         cv2.imshow("frame", frame2)
-        print(test.get_direction())
+        # print(test.get_direction())
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
