@@ -5,8 +5,6 @@ from PIL import Image, ImageTk
 import cv2
 import pyautogui
 import time
-import constants
-import mouse
 
 #WINDOW
 WIDTH = 600
