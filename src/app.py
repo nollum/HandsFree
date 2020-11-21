@@ -2,9 +2,7 @@ import tkinter as tk
 from tkinter import font
 import FaceTracker as ft
 from PIL import Image, ImageTk
-import cv2
-import pyautogui
-import time
+import cv2, pyautogui, time, webbrowser
 
 #WINDOW
 WIDTH = 600
