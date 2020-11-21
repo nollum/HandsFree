@@ -94,13 +94,13 @@ def show_frame():
     imageFrame.after(10, show_frame)
     direction.set(showDirection(face.get_direction()))
 
-imageFrame = tk.Label(root)
-imageFrame.pack()
-orig_width = imageFrame['width']
-orig_height = imageFrame['height']
-
 startFrame = tk.Frame(root)
 startFrame.pack(side="bottom", fill="x")
+
+imageFrame = tk.Label(root)
+imageFrame.pack(side="top")
+orig_width = imageFrame['width']
+orig_height = imageFrame['height']
 
 startButton = tk.Button(startFrame, text="Start", command=startProcess, relief="flat", bg="#CACACA")
 startButton.pack(side="bottom", fill="x")
