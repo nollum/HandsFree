@@ -2,7 +2,12 @@ import tkinter as tk
 from tkinter import font
 import FaceTracker as ft
 from PIL import Image, ImageTk
-import cv2, pyautogui, time, webbrowser
+import webbrowser
+import cv2
+import pyautogui
+import time
+import constants
+import mouse
 
 #WINDOW
 WIDTH = 600
@@ -19,7 +24,26 @@ def down():
 
 #Moving the mouse relative to its current position
 def move_mouse(n, m):
-    pyautogui.moveRel(n*20, m*20, 0.1) #scroll down by n (-n)
+    if check_mouse_loc():
+        if n != 0 and m != 0:
+            pyautogui.moveRel((n/abs(n))*constants.scrollrate, -(m/abs(m))*constants.scrollrate, 0.1) #scroll down by n (-n)
+        elif n != 0:
+            pyautogui.moveRel((n/abs(n))*constants.scrollrate, 0, 0.1) #scroll down by n (-n)
+        else:
+            pyautogui.moveRel(0, -(m/abs(m))*constants.scrollrate, 0.1) #scroll down by n (-n)
+    else:
+        width, height = pyautogui.size()
+        pyautogui.moveTo(width/2, height/2, duration=0.25)
+
+def check_mouse_loc():
+    mouse_x, mouse_y = mouse.get_position()
+    width, height = pyautogui.size()
+    if mouse_x <= 20 and (mouse_y <= 20 or mouse_y >= height-20):
+        return False
+    elif mouse_x >= width - 20 and (mouse_y <= 20 or mouse_y >= height-20):
+        return False
+    else:
+        return True
 
 #Click the mouse at current position
 def click():
@@ -31,13 +55,12 @@ root.title("Auto-Scroller")
 root.geometry("{}x{}".format(WIDTH, HEIGHT))
 root.geometry('+{}+{}'.format(100,100))
 root.resizable(False, True)
-root.iconbitmap('../img/logo.ico')
 root.option_add("*Font", ("Consolas", 20))
 
 def showDirection(dir):
-    if dir == 1:
+    if dir == 2:
         return 'Up'
-    elif dir == 2:
+    elif dir == 1:
         return 'Down'
     elif dir == 3:
         return 'No movement'
@@ -69,18 +92,22 @@ def startProcess():
     root.attributes('-topmost', True)
     root.bind("<Key>", key_pressed)
     while imageFrame['width'] == WIDTH//2:
-        if face.get_direction() == 1:
-            up()
-        elif face.get_direction() == 2:
-            down()
         nose_x, nose_y = face.get_nose_direction()
-        print(nose_x)
-        if nose_x > 10 and nose_y > 10:
+        if face.get_direction() == 2:
+            up()
+        elif face.get_direction() == 1: 
+            down()
+        elif abs(nose_x) > constants.diagonal_x_sens and abs(nose_y) > constants.diagonal_y_sens: #diagonal
             move_mouse(nose_x, nose_y)
-        elif nose_x > 10:
+        elif abs(nose_x) > constants.horizontal_x_sens: #horizontal
             move_mouse(nose_x, 0)
-        elif nose_y > 10:
+        elif abs(nose_y) > constants.vertical_y_sens: #vertical
             move_mouse(0, nose_y)
+        elif face.on_click():
+            click()
+        elif face.on_reset():
+            width, height = pyautogui.size()
+            pyautogui.moveTo(width/2, height/2, duration=0.25)
         root.update()
 
 def p_on_enter(bttn):
