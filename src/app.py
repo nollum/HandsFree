@@ -2,7 +2,9 @@ import tkinter as tk
 from tkinter import font
 import FaceTracker as ft
 from PIL import Image, ImageTk
-import cv2, pyautogui, time
+import cv2
+import pyautogui
+import time
 
 #WINDOW
 WIDTH = 600
@@ -16,6 +18,14 @@ def up():
 def down():
     pyautogui.scroll(-50) #scroll down by n (-n)
     time.sleep(0.000001)
+
+#Moving the mouse relative to its current position
+def move_mouse(n, m):
+    pyautogui.moveRel(n*20, m*20, 0.1) #scroll down by n (-n)
+
+#Click the mouse at current position
+def click():
+    pyautogui.click() #by default, this left-clicks at the current (x, y) cursor position
 
 root = tk.Tk()
 root.option_add('*Font', '19')
@@ -56,6 +66,14 @@ def startProcess():
             up()
         elif face.get_direction() == 2:
             down()
+        nose_x, nose_y = face.get_nose_direction()
+        print(nose_x)
+        if nose_x > 10 and nose_y > 10:
+            move_mouse(nose_x, nose_y)
+        elif nose_x > 10:
+            move_mouse(nose_x, 0)
+        elif nose_y > 10:
+            move_mouse(0, nose_y)
         root.update()
 
 def on_enter(event):
