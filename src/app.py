@@ -50,11 +50,18 @@ def key_pressed(event):
 def endProcess():
     root.geometry("{}x{}".format(WIDTH, HEIGHT))
     root.attributes('-topmost', False)
-    startFrame.pack(side="bottom", fill="x")
+    faceDirectionLabel.config(anchor="center")
+    faceDirectionLabel.pack(side="top", pady=10)
+    panelButton.config(text="Start")
+    panelButton.config(command=startProcess)
+    panelButton.pack(side="bottom", fill="x")
+    panelFrame.pack(side="bottom", fill="x")
     imageFrame.config(width=orig_width, height=orig_height)
 
 def startProcess():
-    startFrame.pack_forget()
+    faceDirectionLabel.forget()
+    panelButton.config(text="Stop")
+    panelButton.config(command=endProcess)
     root.geometry("{}x{}".format(WIDTH//2, HEIGHT//2))
     imageFrame.config(width=WIDTH//2, height=HEIGHT//2)
     root.attributes('-topmost', True)
@@ -75,10 +82,10 @@ def startProcess():
         root.update()
 
 def on_enter(event):
-    startButton['background'] = 'grey'
+    panelButton['background'] = 'grey'
 
 def on_leave(event):
-    startButton['background'] = '#CACACA'
+    panelButton['background'] = '#CACACA'
 
 def show_frame():
     frame = face.update_frame()
@@ -94,24 +101,24 @@ def show_frame():
     imageFrame.after(10, show_frame)
     direction.set(showDirection(face.get_direction()))
 
-startFrame = tk.Frame(root)
-startFrame.pack(side="bottom", fill="x")
+panelFrame = tk.Frame(root)
+panelFrame.pack(side="bottom", fill="x")
 
 imageFrame = tk.Label(root)
 imageFrame.pack(side="top")
 orig_width = imageFrame['width']
 orig_height = imageFrame['height']
 
-startButton = tk.Button(startFrame, text="Start", command=startProcess, relief="flat", bg="#CACACA")
-startButton.pack(side="bottom", fill="x")
+panelButton = tk.Button(panelFrame, text="Start", command=startProcess, relief="flat", bg="#CACACA")
+panelButton.pack(side="bottom", fill="x")
 
-startButton.bind("<Enter>", on_enter)
-startButton.bind("<Leave>", on_leave)
+panelButton.bind("<Enter>", on_enter)
+panelButton.bind("<Leave>", on_leave)
 
 direction = tk.StringVar()
-faceDirection_lbl = tk.Label(startFrame, textvariable=direction)
-faceDirection_lbl.config(anchor="center")
-faceDirection_lbl.pack(side="top", pady=10)
+faceDirectionLabel = tk.Label(panelFrame, textvariable=direction)
+faceDirectionLabel.config(anchor="center")
+faceDirectionLabel.pack(side="top", pady=10)
 
 show_frame()
 
