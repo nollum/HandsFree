@@ -8,6 +8,8 @@ import pyautogui
 import time
 import constants
 import mouse
+import os
+
 
 #WINDOW
 WIDTH = 600
@@ -110,6 +112,10 @@ def startProcess():
             pyautogui.moveTo(width/2, height/2, duration=0.25)
         root.update()
 
+def openTutorial():
+    filename = "./site/index.html"
+    webbrowser.open('file://' + os.path.realpath(filename), new=2)
+
 def p_on_enter(bttn):
     panelButton['background'] = 'grey'
 
@@ -150,7 +156,7 @@ panelButton.pack(side="bottom", fill="x")
 panelButton.bind("<Enter>", p_on_enter)
 panelButton.bind("<Leave>", p_on_leave)
 
-tutorialButton = tk.Button(panelFrame, text="Tutorial", relief="flat", bg="#CACACA")
+tutorialButton = tk.Button(panelFrame, text="Tutorial", command=openTutorial, relief="flat", bg="#CACACA")
 tutorialButton.pack(side="bottom", fill="x")
 
 tutorialButton.bind("<Enter>", t_on_enter)
