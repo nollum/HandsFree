@@ -8,7 +8,10 @@ import time
 
 #WINDOW
 WIDTH = 600
-HEIGHT = 600
+HEIGHT = 650
+
+#OTHER
+BTTN_HEIGHT = 50
 
 face = ft.FaceTracker()
 
@@ -71,13 +74,22 @@ def key_pressed(event):
 def endProcess():
     root.geometry("{}x{}".format(WIDTH, HEIGHT))
     root.attributes('-topmost', False)
-    startFrame.pack(side="bottom", fill="x")
+    faceDirectionLabel.config(anchor="center")
+    faceDirectionLabel.pack(pady=10)
+    panelButton.config(text="Start")
+    panelButton.config(command=startProcess)
+    panelButton.pack(fill="x")
+    tutorialButton.pack(fill="x")
+    panelFrame.pack(side="bottom", fill="x")
     imageFrame.config(width=orig_width, height=orig_height)
 
 def startProcess():
-    startFrame.pack_forget()
+    faceDirectionLabel.forget()
+    tutorialButton.forget()
+    panelButton.config(text="Stop")
+    panelButton.config(command=endProcess)
     root.geometry("{}x{}".format(WIDTH//2, HEIGHT//2))
-    imageFrame.config(width=WIDTH//2, height=HEIGHT//2)
+    imageFrame.config(width=WIDTH//2, height=HEIGHT//2-BTTN_HEIGHT)
     root.attributes('-topmost', True)
     root.bind("<Key>", key_pressed)
     while imageFrame['width'] == WIDTH//2:
@@ -99,11 +111,17 @@ def startProcess():
             pyautogui.moveTo(width/2, height/2, duration=0.25)
         root.update()
 
-def on_enter(event):
-    startButton['background'] = 'grey'
+def p_on_enter(bttn):
+    panelButton['background'] = 'grey'
 
-def on_leave(event):
-    startButton['background'] = '#CACACA'
+def p_on_leave(bbtn):
+    panelButton['background'] = '#CACACA'
+
+def t_on_enter(bttn):
+    tutorialButton['background'] = 'grey'
+
+def t_on_leave(bbtn):
+    tutorialButton['background'] = '#CACACA'
 
 def show_frame():
     frame = face.update_frame()
@@ -124,19 +142,25 @@ imageFrame.pack()
 orig_width = imageFrame['width']
 orig_height = imageFrame['height']
 
-startFrame = tk.Frame(root)
-startFrame.pack(side="bottom", fill="x")
+panelFrame = tk.Frame(root)
+panelFrame.pack(side="bottom", fill="x")
 
-startButton = tk.Button(startFrame, text="Start", command=startProcess, relief="flat", bg="#CACACA")
-startButton.pack(side="bottom", fill="x")
+panelButton = tk.Button(panelFrame, text="Start", command=startProcess, relief="flat", bg="#CACACA")
+panelButton.pack(side="bottom", fill="x")
 
-startButton.bind("<Enter>", on_enter)
-startButton.bind("<Leave>", on_leave)
+panelButton.bind("<Enter>", p_on_enter)
+panelButton.bind("<Leave>", p_on_leave)
+
+tutorialButton = tk.Button(panelFrame, text="Tutorial", relief="flat", bg="#CACACA")
+tutorialButton.pack(side="bottom", fill="x")
+
+tutorialButton.bind("<Enter>", t_on_enter)
+tutorialButton.bind("<Leave>", t_on_leave)
 
 direction = tk.StringVar()
-faceDirection_lbl = tk.Label(startFrame, textvariable=direction)
-faceDirection_lbl.config(anchor="center")
-faceDirection_lbl.pack(side="top", pady=10)
+faceDirectionLabel = tk.Label(panelFrame, textvariable=direction)
+faceDirectionLabel.config(anchor="center")
+faceDirectionLabel.pack(side="top", pady=10)
 
 show_frame()
 
