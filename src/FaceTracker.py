@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import dlib
 import math
+import constants
 
 class FaceTracker:
 
@@ -49,8 +50,7 @@ class FaceTracker:
             eye2Ry = landmarks.part(45).y
             nosex = landmarks.part(30).x
             nosey = landmarks.part(30).y
-            noseTopx = landmarks.part(29).x
-            noseTopy = landmarks.part(29).y
+
 
             mouthBottomx = landmarks.part(66).x
             mouthBottomy = landmarks.part(66).y
@@ -63,8 +63,6 @@ class FaceTracker:
             faceMiddleRightx = landmarks.part(14).x
             faceMiddleRighty = landmarks.part(14).y
 
-            noseMiddlex = landmarks.part(33).x
-            noseMiddley = landmarks.part(33).y
 
             frame = cv2.circle(frame, (rightx, righty), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (leftx, lefty), 4, (255, 0, 0), -1)
@@ -72,11 +70,12 @@ class FaceTracker:
             frame = cv2.circle(frame, (leftx, lefty), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (eye1Lx, eye1Ly), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (eye2Rx, eye2Ry), 4, (255, 0, 0), -1)
-            frame = cv2.circle(frame, (nosex, nosey), 4, (255, 0, 0), -1)
-            frame = cv2.circle(frame, (noseMiddlex, noseMiddley), 4, (255, 0, 0), -1)
+
+            frame = cv2.circle(frame, (nosex, nosey), 6, (0, 0, 255), -1)
             frame = cv2.circle(frame, (faceMiddleLeftx, faceMiddleRighty), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (faceMiddleRightx, faceMiddleRighty), 4, (255, 0, 0), -1)
-            frame = cv2.circle(frame, (noseTopx, noseTopy), 4, (255, 0, 0), -1)
+            # frame = cv2.circle(frame, (noseTopx, noseTopy), 4, (255, 0, 0), -1)
+
             frame = cv2.circle(frame, (mouthBottomx, mouthBottomy), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (mouthTopx, mouthTopy), 4, (255, 0, 0), -1)
 
@@ -120,6 +119,12 @@ class FaceTracker:
             else:
                 print("Not looking at camera")
                 self.direction = 4
+
+            yMiddle = int((faceMiddleLefty + faceMiddleRighty)/2)
+            xMiddle = int((faceMiddleRightx + faceMiddleLeftx)/2)
+
+            cv2.rectangle(frame,(xMiddle - 45 , yMiddle + 20),(xMiddle + 45, yMiddle - 20),(0,255,0),3)
+        frame = cv2.flip(frame, 1)
         return frame
 
     def get_direction(self):
@@ -148,7 +153,7 @@ def main():
         # print(test.get_direction())
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-
+    
     test.release_camera()
     return ()
 
