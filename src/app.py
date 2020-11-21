@@ -2,14 +2,15 @@ import tkinter as tk
 from tkinter import font
 import FaceTracker as ft
 from PIL import Image, ImageTk
-import cv2, pyautogui, time, webbrowser
+import cv2
+import pyautogui
+import time
+import constants
+import mouse
 
 #WINDOW
 WIDTH = 600
-HEIGHT = 650
-
-#OTHER
-BTTN_HEIGHT = 50
+HEIGHT = 600
 
 face = ft.FaceTracker()
 
@@ -22,7 +23,26 @@ def down():
 
 #Moving the mouse relative to its current position
 def move_mouse(n, m):
-    pyautogui.moveRel(n*20, m*20, 0.1) #scroll down by n (-n)
+    if check_mouse_loc():
+        if n != 0 and m != 0:
+            pyautogui.moveRel((n/abs(n))*constants.scrollrate, -(m/abs(m))*constants.scrollrate, 0.1) #scroll down by n (-n)
+        elif n != 0:
+            pyautogui.moveRel((n/abs(n))*constants.scrollrate, 0, 0.1) #scroll down by n (-n)
+        else:
+            pyautogui.moveRel(0, -(m/abs(m))*constants.scrollrate, 0.1) #scroll down by n (-n)
+    else:
+        width, height = pyautogui.size()
+        pyautogui.moveTo(width/2, height/2, duration=0.25)
+
+def check_mouse_loc():
+    mouse_x, mouse_y = mouse.get_position()
+    width, height = pyautogui.size()
+    if mouse_x <= 20 and (mouse_y <= 20 or mouse_y >= height-20):
+        return False
+    elif mouse_x >= width - 20 and (mouse_y <= 20 or mouse_y >= height-20):
+        return False
+    else:
+        return True
 
 #Click the mouse at current position
 def click():
@@ -34,13 +54,13 @@ root.title("Auto-Scroller")
 root.geometry("{}x{}".format(WIDTH, HEIGHT))
 root.geometry('+{}+{}'.format(100,100))
 root.resizable(False, False)
-root.iconbitmap('../img/logo.ico')
+#root.iconbitmap('../img/logo.ico')
 root.option_add("*Font", ("Consolas", 20))
 
 def showDirection(dir):
-    if dir == 1:
+    if dir == 2:
         return 'Up'
-    elif dir == 2:
+    elif dir == 1:
         return 'Down'
     elif dir == 3:
         return 'No movement'
@@ -53,50 +73,39 @@ def key_pressed(event):
 def endProcess():
     root.geometry("{}x{}".format(WIDTH, HEIGHT))
     root.attributes('-topmost', False)
-    faceDirectionLabel.config(anchor="center")
-    faceDirectionLabel.pack(pady=10)
-    panelButton.config(text="Start")
-    panelButton.config(command=startProcess)
-    panelButton.pack(fill="x")
-    tutorialButton.pack(fill="x")
-    panelFrame.pack(side="bottom", fill="x")
+    startFrame.pack(side="bottom", fill="x")
     imageFrame.config(width=orig_width, height=orig_height)
 
 def startProcess():
-    faceDirectionLabel.forget()
-    tutorialButton.forget()
-    panelButton.config(text="Stop")
-    panelButton.config(command=endProcess)
+    startFrame.pack_forget()
     root.geometry("{}x{}".format(WIDTH//2, HEIGHT//2))
-    imageFrame.config(width=WIDTH//2, height=HEIGHT//2-BTTN_HEIGHT)
+    imageFrame.config(width=WIDTH//2, height=HEIGHT//2)
     root.attributes('-topmost', True)
     root.bind("<Key>", key_pressed)
     while imageFrame['width'] == WIDTH//2:
-        if face.get_direction() == 1:
-            up()
-        elif face.get_direction() == 2:
-            down()
         nose_x, nose_y = face.get_nose_direction()
-        print(nose_x)
-        if nose_x > 10 and nose_y > 10:
+        if face.get_direction() == 2:
+            up()
+        elif face.get_direction() == 1: 
+            down()
+        elif abs(nose_x) > constants.diagonal_x_sens and abs(nose_y) > constants.diagonal_y_sens: #diagonal
             move_mouse(nose_x, nose_y)
-        elif nose_x > 10:
+        elif abs(nose_x) > constants.horizontal_x_sens: #horizontal
             move_mouse(nose_x, 0)
-        elif nose_y > 10:
+        elif abs(nose_y) > constants.vertical_y_sens: #vertical
             move_mouse(0, nose_y)
+        elif face.on_click():
+            click()
+        elif face.on_reset():
+            width, height = pyautogui.size()
+            pyautogui.moveTo(width/2, height/2, duration=0.25)
         root.update()
 
-def p_on_enter(bttn):
-    panelButton['background'] = 'grey'
+def on_enter(event):
+    startButton['background'] = 'grey'
 
-def p_on_leave(bbtn):
-    panelButton['background'] = '#CACACA'
-
-def t_on_enter(bttn):
-    tutorialButton['background'] = 'grey'
-
-def t_on_leave(bbtn):
-    tutorialButton['background'] = '#CACACA'
+def on_leave(event):
+    startButton['background'] = '#CACACA'
 
 def show_frame():
     frame = face.update_frame()
@@ -113,29 +122,23 @@ def show_frame():
     direction.set(showDirection(face.get_direction()))
 
 imageFrame = tk.Label(root)
-imageFrame.pack(side="top")
+imageFrame.pack()
 orig_width = imageFrame['width']
 orig_height = imageFrame['height']
 
-panelFrame = tk.Frame(root)
-panelFrame.pack(side="bottom", fill="x")
+startFrame = tk.Frame(root)
+startFrame.pack(side="bottom", fill="x")
 
-panelButton = tk.Button(panelFrame, text="Start", command=startProcess, relief="flat", bg="#CACACA")
-panelButton.pack(side="bottom", fill="x")
+startButton = tk.Button(startFrame, text="Start", command=startProcess, relief="flat", bg="#CACACA")
+startButton.pack(side="bottom", fill="x")
 
-panelButton.bind("<Enter>", p_on_enter)
-panelButton.bind("<Leave>", p_on_leave)
-
-tutorialButton = tk.Button(panelFrame, text="Tutorial", relief="flat", bg="#CACACA")
-tutorialButton.pack(side="bottom", fill="x")
-
-tutorialButton.bind("<Enter>", t_on_enter)
-tutorialButton.bind("<Leave>", t_on_leave)
+startButton.bind("<Enter>", on_enter)
+startButton.bind("<Leave>", on_leave)
 
 direction = tk.StringVar()
-faceDirectionLabel = tk.Label(panelFrame, textvariable=direction)
-faceDirectionLabel.config(anchor="center")
-faceDirectionLabel.pack(side="top", pady=10)
+faceDirection_lbl = tk.Label(startFrame, textvariable=direction)
+faceDirection_lbl.config(anchor="center")
+faceDirection_lbl.pack(side="top", pady=10)
 
 show_frame()
 
