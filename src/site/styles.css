@@ -50,7 +50,7 @@ body ul li a {
     background-color: grey;
     font-size: 50px;
     padding: 20px;
-    border: groove;
+    border: solid;
 }
 
 body header p {
