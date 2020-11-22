@@ -16,7 +16,7 @@ class FaceTracker:
         self.reset = False
         self.click = False
 
-        print("Camera warming up ...")
+        #print("Camera warming up ...")
 
     def update_frame(self):
         _, frame = self.cap.read()
@@ -26,7 +26,7 @@ class FaceTracker:
 
         if(len(faces) == 0):
             self.reset = True
-            print("RESETTTTTT")
+            #print("RESETTTTTT")
         else:
             self.reset = False
 
@@ -98,7 +98,7 @@ class FaceTracker:
 
             if(abs(mouthTopy-mouthBottomy) > c.CLICK_THRESHOLD):
                 self.click = True
-                print("CLICK")
+                #print("CLICK")
             else:
                 self.click = False
 
@@ -107,22 +107,22 @@ class FaceTracker:
 
             if(abs(eyeLine1 - eyeLine2) < c.ALIGNED_THRESHOLD):
                 if lefty - righty > c.SCROLL_UP_THRESHOLD:
-                    print("UP")
+                    #print("UP")
                     self.direction = 1
                 elif lefty - righty < -c.SCROLL_DOWN_THRESHOLD:
-                    print("DOWN")
+                    #print("DOWN")
                     self.direction = 2
                 else:
-                    print("No movement")
+                    #print("No movement")
                     self.direction = 3
             else:
-                print("Not looking at camera")
+                #print("Not looking at camera")
                 self.direction = 4
 
             yMiddle = int((faceMiddleLefty + faceMiddleRighty)/2)
             xMiddle = int((faceMiddleRightx + faceMiddleLeftx)/2)
 
-            cv2.rectangle(frame,(xMiddle - int(c.horizontal_x_sens/2) , yMiddle + c.vertical_y_sens),(xMiddle + int(c.horizontal_x_sens/2), yMiddle - c.vertical_y_sens),(0,255,0),3)
+            cv2.rectangle(frame,(xMiddle - int(c.HORIZONTAL_X_SENS/2) , yMiddle + c.VERTICAL_Y_SENS),(xMiddle + int(c.HORIZONTAL_X_SENS/2), yMiddle - c.VERTICAL_Y_SENS),(0,255,0),3)
         frame = cv2.flip(frame, 1)
         return frame
 
