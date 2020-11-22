@@ -56,14 +56,14 @@ root.option_add('*Font', '19')
 root.title("Auto-Scroller")
 root.geometry("{}x{}".format(WIDTH, HEIGHT))
 root.geometry('+{}+{}'.format(100,100))
-root.resizable(False, True)
+root.resizable(False, False)
 root.option_add("*Font", ("Consolas", 20))
 
 def showDirection(dir):
-    if dir == 2:
-        return 'Up'
-    elif dir == 1:
+    if dir == 1:
         return 'Down'
+    elif dir == 2:
+        return 'Up'
     elif dir == 3:
         return 'No movement'
     else:
@@ -90,16 +90,16 @@ def startProcess():
     panelButton.config(text="Stop")
     panelButton.config(command=endProcess)
     root.geometry("{}x{}".format(WIDTH//2, HEIGHT//2))
-    imageFrame.config(width=WIDTH//2, height=HEIGHT//2-50)
+    imageFrame.config(width=WIDTH//2, height=HEIGHT//2-panelButton.winfo_height())
     root.attributes('-topmost', True)
     root.bind("<Key>", key_pressed)
     while imageFrame['width'] == WIDTH//2:
         nose_x, nose_y = face.get_nose_direction()
-        if face.get_direction() == 2:
-            up()
-        elif face.get_direction() == 1: 
+        if face.get_direction() == 1:
             down()
-        elif abs(nose_x) > constants.diagonal_x_sens and abs(nose_y) > constants.diagonal_y_sens: #diagonal
+        elif face.get_direction() == 2: 
+            up()
+        elif abs(nose_x) > constants.horizontal_x_sens and abs(nose_y) > constants.vertical_y_sens: #diagonal
             move_mouse(nose_x, nose_y)
         elif abs(nose_x) > constants.horizontal_x_sens: #horizontal
             move_mouse(nose_x, 0)
