@@ -56,6 +56,7 @@ root.geometry("{}x{}".format(WIDTH, HEIGHT))
 root.geometry('+{}+{}'.format(100,100))
 root.resizable(False, False)
 root.option_add("*Font", ("Consolas", 20))
+root.iconbitmap("../img/HFicon.ico")
 
 def showDirection(dir):
     if dir == 1:
@@ -95,7 +96,7 @@ def startProcess():
         nose_x, nose_y = face.get_nose_direction()
         if face.get_direction() == 1:
             down()
-        elif face.get_direction() == 2: 
+        elif face.get_direction() == 2:
             up()
         elif abs(nose_x) > constants.horizontal_x_sens and abs(nose_y) > constants.vertical_y_sens: #diagonal
             move_mouse(nose_x, nose_y)
