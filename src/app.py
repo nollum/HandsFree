@@ -7,7 +7,7 @@ import cv2
 import pyautogui
 import time
 import constants
-import mouse
+import os
 
 #WINDOW
 WIDTH = 600
@@ -36,7 +36,7 @@ def move_mouse(n, m):
         pyautogui.moveTo(width/2, height/2, duration=0.25)
 
 def check_mouse_loc():
-    mouse_x, mouse_y = mouse.get_position()
+    mouse_x, mouse_y = pyautogui.position()
     width, height = pyautogui.size()
     if mouse_x <= 20 and (mouse_y <= 20 or mouse_y >= height-20):
         return False
@@ -54,14 +54,14 @@ root.option_add('*Font', '19')
 root.title("Auto-Scroller")
 root.geometry("{}x{}".format(WIDTH, HEIGHT))
 root.geometry('+{}+{}'.format(100,100))
-root.resizable(False, True)
+root.resizable(False, False)
 root.option_add("*Font", ("Consolas", 20))
 
 def showDirection(dir):
-    if dir == 2:
-        return 'Up'
-    elif dir == 1:
+    if dir == 1:
         return 'Down'
+    elif dir == 2:
+        return 'Up'
     elif dir == 3:
         return 'No movement'
     else:
@@ -88,16 +88,16 @@ def startProcess():
     panelButton.config(text="Stop")
     panelButton.config(command=endProcess)
     root.geometry("{}x{}".format(WIDTH//2, HEIGHT//2))
-    imageFrame.config(width=WIDTH//2, height=HEIGHT//2-50)
+    imageFrame.config(width=WIDTH//2, height=HEIGHT//2-panelButton.winfo_height())
     root.attributes('-topmost', True)
     root.bind("<Key>", key_pressed)
     while imageFrame['width'] == WIDTH//2:
         nose_x, nose_y = face.get_nose_direction()
-        if face.get_direction() == 2:
-            up()
-        elif face.get_direction() == 1: 
+        if face.get_direction() == 1:
             down()
-        elif abs(nose_x) > constants.diagonal_x_sens and abs(nose_y) > constants.diagonal_y_sens: #diagonal
+        elif face.get_direction() == 2: 
+            up()
+        elif abs(nose_x) > constants.horizontal_x_sens and abs(nose_y) > constants.vertical_y_sens: #diagonal
             move_mouse(nose_x, nose_y)
         elif abs(nose_x) > constants.horizontal_x_sens: #horizontal
             move_mouse(nose_x, 0)
@@ -109,6 +109,10 @@ def startProcess():
             width, height = pyautogui.size()
             pyautogui.moveTo(width/2, height/2, duration=0.25)
         root.update()
+
+def openTutorial():
+    filename = "./tutorial-site/index.html"
+    webbrowser.open('file://' + os.path.realpath(filename), new=2)
 
 def p_on_enter(bttn):
     panelButton['background'] = 'grey'
@@ -136,10 +140,6 @@ def show_frame():
     imageFrame.after(10, show_frame)
     direction.set(showDirection(face.get_direction()))
 
-imageFrame = tk.Label(root)
-imageFrame.pack(side="top")
-orig_width = imageFrame['width']
-orig_height = imageFrame['height']
 
 panelFrame = tk.Frame(root)
 panelFrame.pack(side="bottom", fill="x")
@@ -150,7 +150,7 @@ panelButton.pack(side="bottom", fill="x")
 panelButton.bind("<Enter>", p_on_enter)
 panelButton.bind("<Leave>", p_on_leave)
 
-tutorialButton = tk.Button(panelFrame, text="Tutorial", relief="flat", bg="#CACACA")
+tutorialButton = tk.Button(panelFrame, text="Tutorial", command=openTutorial, relief="flat", bg="#CACACA")
 tutorialButton.pack(side="bottom", fill="x")
 
 tutorialButton.bind("<Enter>", t_on_enter)
@@ -160,6 +160,11 @@ direction = tk.StringVar()
 faceDirectionLabel = tk.Label(panelFrame, textvariable=direction)
 faceDirectionLabel.config(anchor="center")
 faceDirectionLabel.pack(side="top", pady=10)
+
+imageFrame = tk.Label(root)
+imageFrame.pack(side="top")
+orig_width = imageFrame['width']
+orig_height = imageFrame['height']
 
 show_frame()
 
