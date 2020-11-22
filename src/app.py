@@ -5,7 +5,6 @@ from PIL import Image, ImageTk
 import webbrowser
 import cv2
 import pyautogui
-import time
 import constants
 import os
 
@@ -16,21 +15,19 @@ HEIGHT = 700
 face = ft.FaceTracker()
 
 def up():
-    pyautogui.scroll(50) #scroll up by n
-    time.sleep(0.000001)
+    pyautogui.scroll(constants.SCROLLRATE) #scroll up by n
 def down():
-    pyautogui.scroll(-50) #scroll down by n (-n)
-    time.sleep(0.000001)
+    pyautogui.scroll(-(constants.SCROLLRATE)) #scroll down by n (-n)
 
 #Moving the mouse relative to its current position
 def move_mouse(n, m):
     if check_mouse_loc():
         if n != 0 and m != 0:
-            pyautogui.moveRel((n/abs(n))*constants.scrollrate, -(m/abs(m))*constants.scrollrate, 0.1) #scroll down by n (-n)
+            pyautogui.moveRel((n/abs(n))*constants.MOUSE_MOVEMENT, -(m/abs(m))*constants.MOUSE_MOVEMENT, 0.1) #scroll down by n (-n)
         elif n != 0:
-            pyautogui.moveRel((n/abs(n))*constants.scrollrate, 0, 0.1) #scroll down by n (-n)
+            pyautogui.moveRel((n/abs(n))*constants.MOUSE_MOVEMENT, 0, 0.1) #scroll down by n (-n)
         else:
-            pyautogui.moveRel(0, -(m/abs(m))*constants.scrollrate, 0.1) #scroll down by n (-n)
+            pyautogui.moveRel(0, -(m/abs(m))*constants.MOUSE_MOVEMENT, 0.1) #scroll down by n (-n)
     else:
         width, height = pyautogui.size()
         pyautogui.moveTo(width/2, height/2, duration=0.25)
@@ -54,15 +51,14 @@ root.option_add('*Font', '19')
 root.title("Auto-Scroller")
 root.geometry("{}x{}".format(WIDTH, HEIGHT))
 root.geometry('+{}+{}'.format(100,100))
-root.resizable(False, False)
+root.resizable(False, True)
 root.option_add("*Font", ("Consolas", 20))
-root.iconbitmap("../img/HFicon.ico")
 
 def showDirection(dir):
-    if dir == 1:
-        return 'Down'
-    elif dir == 2:
+    if dir == 2:
         return 'Up'
+    elif dir == 1:
+        return 'Down'
     elif dir == 3:
         return 'No movement'
     else:
@@ -89,20 +85,20 @@ def startProcess():
     panelButton.config(text="Stop")
     panelButton.config(command=endProcess)
     root.geometry("{}x{}".format(WIDTH//2, HEIGHT//2))
-    imageFrame.config(width=WIDTH//2, height=HEIGHT//2-panelButton.winfo_height())
+    imageFrame.config(width=WIDTH//2, height=HEIGHT//2-50)
     root.attributes('-topmost', True)
     root.bind("<Key>", key_pressed)
     while imageFrame['width'] == WIDTH//2:
         nose_x, nose_y = face.get_nose_direction()
-        if face.get_direction() == 1:
-            down()
-        elif face.get_direction() == 2:
+        if face.get_direction() == 2:
             up()
-        elif abs(nose_x) > constants.horizontal_x_sens and abs(nose_y) > constants.vertical_y_sens: #diagonal
+        elif face.get_direction() == 1:
+            down()
+        elif abs(nose_x) > constants.HORIZONTAL_X_SENS and abs(nose_y) > constants.VERTICAL_Y_SENS: #diagonal
             move_mouse(nose_x, nose_y)
-        elif abs(nose_x) > constants.horizontal_x_sens: #horizontal
+        elif abs(nose_x) > constants.HORIZONTAL_X_SENS: #horizontal
             move_mouse(nose_x, 0)
-        elif abs(nose_y) > constants.vertical_y_sens: #vertical
+        elif abs(nose_y) > constants.VERTICAL_Y_SENS: #vertical
             move_mouse(0, nose_y)
         elif face.on_click():
             click()
@@ -112,7 +108,8 @@ def startProcess():
         root.update()
 
 def openTutorial():
-    webbrowser.open('https://nollum.github.io/HandsFreeTutorial/')
+    filename = "./site/index.html"
+    webbrowser.open('file://' + os.path.realpath(filename), new=2)
 
 def p_on_enter(bttn):
     panelButton['background'] = 'grey'
@@ -139,7 +136,6 @@ def show_frame():
     imageFrame.config(image=imgtk)
     imageFrame.after(10, show_frame)
     direction.set(showDirection(face.get_direction()))
-
 
 panelFrame = tk.Frame(root)
 panelFrame.pack(side="bottom", fill="x")
