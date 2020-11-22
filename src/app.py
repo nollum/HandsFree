@@ -7,9 +7,7 @@ import cv2
 import pyautogui
 import time
 import constants
-import mouse
 import os
-
 
 #WINDOW
 WIDTH = 600
@@ -38,7 +36,7 @@ def move_mouse(n, m):
         pyautogui.moveTo(width/2, height/2, duration=0.25)
 
 def check_mouse_loc():
-    mouse_x, mouse_y = mouse.get_position()
+    mouse_x, mouse_y = pyautogui.position()
     width, height = pyautogui.size()
     if mouse_x <= 20 and (mouse_y <= 20 or mouse_y >= height-20):
         return False
@@ -142,10 +140,6 @@ def show_frame():
     imageFrame.after(10, show_frame)
     direction.set(showDirection(face.get_direction()))
 
-imageFrame = tk.Label(root)
-imageFrame.pack(side="top")
-orig_width = imageFrame['width']
-orig_height = imageFrame['height']
 
 panelFrame = tk.Frame(root)
 panelFrame.pack(side="bottom", fill="x")
@@ -166,6 +160,11 @@ direction = tk.StringVar()
 faceDirectionLabel = tk.Label(panelFrame, textvariable=direction)
 faceDirectionLabel.config(anchor="center")
 faceDirectionLabel.pack(side="top", pady=10)
+
+imageFrame = tk.Label(root)
+imageFrame.pack(side="top")
+orig_width = imageFrame['width']
+orig_height = imageFrame['height']
 
 show_frame()
 
