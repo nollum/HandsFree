@@ -111,7 +111,7 @@ def startProcess():
         root.update()
 
 def openTutorial():
-    filename = "./site/index.html"
+    filename = "./tutorial-site/index.html"
     webbrowser.open('file://' + os.path.realpath(filename), new=2)
 
 def p_on_enter(bttn):
