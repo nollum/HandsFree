@@ -111,8 +111,7 @@ def startProcess():
         root.update()
 
 def openTutorial():
-    filename = "./tutorial-site/index.html"
-    webbrowser.open('file://' + os.path.realpath(filename), new=2)
+    webbrowser.open('https://nollum.github.io/HandsFreeTutorial/')
 
 def p_on_enter(bttn):
     panelButton['background'] = 'grey'
