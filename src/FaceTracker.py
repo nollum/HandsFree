@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import dlib
 import math
-import constants
+import constants as c
 
 class FaceTracker:
 
@@ -16,7 +16,7 @@ class FaceTracker:
         self.reset = False
         self.click = False
 
-        print("Camera warming up ...")
+        #print("Camera warming up ...")
 
     def update_frame(self):
         _, frame = self.cap.read()
@@ -26,7 +26,7 @@ class FaceTracker:
 
         if(len(faces) == 0):
             self.reset = True
-            print("RESETTTTTT")
+            #print("RESETTTTTT")
         else:
             self.reset = False
 
@@ -50,7 +50,8 @@ class FaceTracker:
             eye2Ry = landmarks.part(45).y
             nosex = landmarks.part(30).x
             nosey = landmarks.part(30).y
-
+            # noseTopx = landmarks.part(29).x
+            # noseTopy = landmarks.part(29).y
 
             mouthBottomx = landmarks.part(66).x
             mouthBottomy = landmarks.part(66).y
@@ -70,12 +71,10 @@ class FaceTracker:
             frame = cv2.circle(frame, (leftx, lefty), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (eye1Lx, eye1Ly), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (eye2Rx, eye2Ry), 4, (255, 0, 0), -1)
-
             frame = cv2.circle(frame, (nosex, nosey), 6, (0, 0, 255), -1)
             frame = cv2.circle(frame, (faceMiddleLeftx, faceMiddleRighty), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (faceMiddleRightx, faceMiddleRighty), 4, (255, 0, 0), -1)
             # frame = cv2.circle(frame, (noseTopx, noseTopy), 4, (255, 0, 0), -1)
-
             frame = cv2.circle(frame, (mouthBottomx, mouthBottomy), 4, (255, 0, 0), -1)
             frame = cv2.circle(frame, (mouthTopx, mouthTopy), 4, (255, 0, 0), -1)
 
@@ -97,33 +96,33 @@ class FaceTracker:
 
             # print(self.noseChangex)
 
-            if(abs(mouthTopy-mouthBottomy) > 10):
+            if(abs(mouthTopy-mouthBottomy) > c.CLICK_THRESHOLD):
                 self.click = True
-                print("CLICK")
+                #print("CLICK")
             else:
                 self.click = False
 
             self.noseOldx = nosex
             self.noseOldy = nosey
 
-            if(abs(eyeLine1 - eyeLine2) < 30):
-                if lefty - righty > 30:
-                    print("UP")
+            if(abs(eyeLine1 - eyeLine2) < c.ALIGNED_THRESHOLD):
+                if lefty - righty > c.SCROLL_UP_THRESHOLD:
+                    #print("UP")
                     self.direction = 1
-                elif lefty - righty < -30:
-                    print("DOWN")
+                elif lefty - righty < -c.SCROLL_DOWN_THRESHOLD:
+                    #print("DOWN")
                     self.direction = 2
                 else:
-                    print("No movement")
+                    #print("No movement")
                     self.direction = 3
             else:
-                print("Not looking at camera")
+                #print("Not looking at camera")
                 self.direction = 4
 
             yMiddle = int((faceMiddleLefty + faceMiddleRighty)/2)
             xMiddle = int((faceMiddleRightx + faceMiddleLeftx)/2)
 
-            cv2.rectangle(frame,(xMiddle - 45 , yMiddle + 20),(xMiddle + 45, yMiddle - 20),(0,255,0),3)
+            cv2.rectangle(frame,(xMiddle - int(c.HORIZONTAL_X_SENS/2) , yMiddle + c.VERTICAL_Y_SENS),(xMiddle + int(c.HORIZONTAL_X_SENS/2), yMiddle - c.VERTICAL_Y_SENS),(0,255,0),3)
         frame = cv2.flip(frame, 1)
         return frame
 
