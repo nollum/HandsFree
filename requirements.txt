@@ -1,0 +1,8 @@
+cmake
+dlib
+numpy
+cv2
+tkinter
+pillow
+webbrowser
+pyautogui
